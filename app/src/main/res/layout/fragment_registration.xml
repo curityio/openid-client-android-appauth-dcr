@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <import type="android.view.View"/>
+        <variable name="model" type="io.curity.identityserver.dcrclient.views.registration.RegistrationFragmentViewModel" />
+    </data>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/fragment_registration_error"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:name="io.curity.identityserver.dcrclient.views.error.ErrorFragment"
+            android:visibility="@{model.error.hasDetails() ? View.VISIBLE : View.GONE}"
+            tools:layout="@layout/fragment_error">
+        </androidx.fragment.app.FragmentContainerView>
+
+        <TextView
+            android:id="@+id/unregistered_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/unregistered_message"
+            style="@style/HeadingStyle" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:src="@drawable/start_illustration"
+            android:contentDescription="@string/unregistered_message" />
+
+        <Button
+            android:id="@+id/registerButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/start_registration_button"
+            android:onClick="@{() -> model.startLogin()}"
+            style="@style/ButtonStyle" />
+
+    </LinearLayout>
+</layout>
