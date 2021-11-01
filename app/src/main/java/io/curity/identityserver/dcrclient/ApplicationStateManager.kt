@@ -40,7 +40,7 @@ class ApplicationStateManager(private val sharedPreferences: SharedPreferences) 
     init {
 
         // During development, when the database is recreated, this can be used to delete old registrations from shared preferences
-        deleteRegistration()
+        // deleteRegistration()
 
         val registration = this.sharedPreferences.getString("registration", null)
         if (registration != null) {
