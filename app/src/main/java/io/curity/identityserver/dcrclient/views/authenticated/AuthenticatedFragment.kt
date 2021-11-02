@@ -25,12 +25,13 @@ import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import io.curity.identityserver.dcrclient.databinding.FragmentAuthenticatedBinding
 import io.curity.identityserver.dcrclient.views.MainActivity
 import io.curity.identityserver.dcrclient.views.MainActivityViewModel
 import io.curity.identityserver.dcrclient.views.error.ErrorFragmentViewModel
 
-class AuthenticatedFragment : androidx.fragment.app.Fragment(), AuthenticatedFragmentEvents {
+class AuthenticatedFragment : androidx.fragment.app.Fragment() {
 
     private lateinit var binding: FragmentAuthenticatedBinding
 
@@ -46,15 +47,26 @@ class AuthenticatedFragment : androidx.fragment.app.Fragment(), AuthenticatedFra
         savedInstanceState: Bundle?
     ): View {
 
+        // Create the view model the first time the view is created
         val mainViewModel: MainActivityViewModel by activityViewModels()
         val errorViewModel: ErrorFragmentViewModel by viewModels()
+        val viewModel = mainViewModel.getAuthenticatedViewModel(errorViewModel)
 
+        // Handle events sent from the view model
+        viewModel.logoutStarted.observe(this, Observer { event ->
+            event?.getData()?.let {
+                this.startLogoutRedirect(it)
+            }
+        })
+        viewModel.logoutCompleted.observe(this, Observer { event ->
+            event?.getData()?.let {
+                this.onLoggedOut()
+            }
+        })
+
+        // Complete the view setup
         this.binding = FragmentAuthenticatedBinding.inflate(inflater, container, false)
-        this.binding.model = AuthenticatedFragmentViewModel(
-            this,
-            mainViewModel.state,
-            mainViewModel.appauth,
-            errorViewModel)
+        this.binding.model = viewModel
         return this.binding.root
     }
 
@@ -63,11 +75,11 @@ class AuthenticatedFragment : androidx.fragment.app.Fragment(), AuthenticatedFra
         this.binding.model!!.processTokens()
     }
 
-    override fun startLogoutRedirect(intent: Intent) {
+    private fun startLogoutRedirect(intent: Intent) {
         this.logoutLauncher.launch(intent)
     }
 
-    override fun onLoggedOut() {
+    private fun onLoggedOut() {
         val mainActivity = this.activity as MainActivity
         mainActivity.onLoggedOutNavigate()
     }

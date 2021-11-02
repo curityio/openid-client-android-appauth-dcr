@@ -20,6 +20,7 @@ import android.content.ContentValues
 import android.content.Intent
 import android.util.Log
 import androidx.databinding.BaseObservable
+import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -34,13 +35,18 @@ import io.curity.identityserver.dcrclient.ApplicationStateManager
 import io.curity.identityserver.dcrclient.errors.ApplicationException
 import io.curity.identityserver.dcrclient.errors.InvalidIdTokenException
 import io.curity.identityserver.dcrclient.views.error.ErrorFragmentViewModel
+import io.curity.identityserver.dcrclient.utilities.Event
 
 class AuthenticatedFragmentViewModel(
-    private val events: AuthenticatedFragmentEvents,
     private val state: ApplicationStateManager,
     private val appauth: AppAuthHandler,
     val error: ErrorFragmentViewModel) : BaseObservable() {
 
+    // Properties used to publish events back to the view
+    var logoutStarted = MutableLiveData<Event<Intent>>()
+    var logoutCompleted = MutableLiveData<Event<Boolean>>()
+
+    // Token related values
     var subject: String = ""
     var accessToken: String = ""
     var refreshToken: String = ""
@@ -99,7 +105,7 @@ class AuthenticatedFragmentViewModel(
                         that.processTokens()
                     } else {
                         that.state.clearTokens()
-                        events.onLoggedOut()
+                        that.logoutCompleted.postValue(Event(true))
                     }
                 }
 
@@ -120,7 +126,7 @@ class AuthenticatedFragmentViewModel(
             this.state.metadata!!,
             this.state.idToken)
 
-        this.events.startLogoutRedirect(intent)
+        this.logoutStarted.postValue(Event(intent))
     }
 
     fun endLogout(data: Intent) {
@@ -128,7 +134,7 @@ class AuthenticatedFragmentViewModel(
         try {
             this.appauth.handleEndSessionResponse(AuthorizationException.fromIntent(data))
             this.state.clearTokens()
-            this.events.onLoggedOut()
+            this.logoutCompleted.postValue(Event(true))
 
         } catch (ex: ApplicationException) {
             this.error.setDetails(ex)

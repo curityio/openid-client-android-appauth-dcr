@@ -25,12 +25,13 @@ import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import io.curity.identityserver.dcrclient.databinding.FragmentRegistrationBinding
 import io.curity.identityserver.dcrclient.views.MainActivity
 import io.curity.identityserver.dcrclient.views.MainActivityViewModel
 import io.curity.identityserver.dcrclient.views.error.ErrorFragmentViewModel
 
-class RegistrationFragment : androidx.fragment.app.Fragment(), RegistrationFragmentEvents {
+class RegistrationFragment : androidx.fragment.app.Fragment() {
 
     private lateinit var binding: FragmentRegistrationBinding
 
@@ -46,24 +47,34 @@ class RegistrationFragment : androidx.fragment.app.Fragment(), RegistrationFragm
         savedInstanceState: Bundle?
     ): View {
 
+        // Create the view model the first time the view is created
         val mainViewModel: MainActivityViewModel by activityViewModels()
         val errorViewModel: ErrorFragmentViewModel by viewModels()
+        val viewModel = mainViewModel.getRegistrationViewModel(errorViewModel)
 
+        // Handle events sent from the view model
+        viewModel.loginStarted.observe(this, Observer { event ->
+            event?.getData()?.let {
+                this.startLoginRedirect(it)
+            }
+        })
+        viewModel.registrationCompleted.observe(this, Observer { event ->
+            event?.getData()?.let {
+                this.onRegistered()
+            }
+        })
+
+        // Complete the view setup
         this.binding = FragmentRegistrationBinding.inflate(inflater, container, false)
-        this.binding.model = RegistrationFragmentViewModel(
-            this,
-            mainViewModel.config,
-            mainViewModel.state,
-            mainViewModel.appauth,
-            errorViewModel)
+        this.binding.model = viewModel
         return this.binding.root
     }
 
-    override fun startLoginRedirect(intent: Intent) {
+    private fun startLoginRedirect(intent: Intent) {
         this.loginLauncher.launch(intent)
     }
 
-    override fun onRegistered() {
+    private fun onRegistered() {
         val mainActivity = this.activity as MainActivity
         mainActivity.onRegisteredNavigate()
     }

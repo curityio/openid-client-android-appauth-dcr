@@ -23,16 +23,70 @@ import io.curity.identityserver.dcrclient.AppAuthHandler
 import io.curity.identityserver.dcrclient.ApplicationStateManager
 import io.curity.identityserver.dcrclient.configuration.ApplicationConfig
 import io.curity.identityserver.dcrclient.configuration.ApplicationConfigLoader
+import io.curity.identityserver.dcrclient.views.authenticated.AuthenticatedFragmentViewModel
+import io.curity.identityserver.dcrclient.views.error.ErrorFragmentViewModel
+import io.curity.identityserver.dcrclient.views.registration.RegistrationFragmentViewModel
+import io.curity.identityserver.dcrclient.views.unauthenticated.UnauthenticatedFragmentViewModel
 
 class MainActivityViewModel(private val app: Application) : AndroidViewModel(app) {
 
-    val config: ApplicationConfig = ApplicationConfigLoader().load(this.app.applicationContext)
+    // Global objects
+    private val config: ApplicationConfig = ApplicationConfigLoader().load(this.app.applicationContext)
 
-    val appauth: AppAuthHandler = AppAuthHandler(this.config, this.app.applicationContext)
+    private val appauth: AppAuthHandler = AppAuthHandler(this.config, this.app.applicationContext)
 
-    val state = ApplicationStateManager(
+    private val state = ApplicationStateManager(
         this.app.baseContext.getSharedPreferences("authState", Context.MODE_PRIVATE)
     )
+
+    // Child view models
+    private var registrationViewModel: RegistrationFragmentViewModel? = null
+    private var unauthenticatedViewModel: UnauthenticatedFragmentViewModel? = null
+    private var authenticatedViewModel:   AuthenticatedFragmentViewModel? = null
+
+    /*
+     * Create child view models the first time
+     */
+    fun getRegistrationViewModel(errorViewModel: ErrorFragmentViewModel): RegistrationFragmentViewModel {
+
+        if (this.registrationViewModel == null) {
+            this.registrationViewModel = RegistrationFragmentViewModel(
+                this.config,
+                this.state,
+                this.appauth,
+                errorViewModel
+            )
+        }
+
+        return this.registrationViewModel!!
+    }
+
+    fun getUnauthenticatedViewModel(errorViewModel: ErrorFragmentViewModel): UnauthenticatedFragmentViewModel {
+
+        if (this.unauthenticatedViewModel == null) {
+            this.unauthenticatedViewModel = UnauthenticatedFragmentViewModel(
+                this.config,
+                this.state,
+                this.appauth,
+                errorViewModel
+            )
+        }
+
+        return this.unauthenticatedViewModel!!
+    }
+
+    fun getAuthenticatedViewModel(errorViewModel: ErrorFragmentViewModel): AuthenticatedFragmentViewModel {
+
+        if (this.authenticatedViewModel == null) {
+            this.authenticatedViewModel = AuthenticatedFragmentViewModel(
+                this.state,
+                this.appauth,
+                errorViewModel
+            )
+        }
+
+        return this.authenticatedViewModel!!
+    }
 
     fun isRegistered(): Boolean {
         return this.state.registrationResponse != null;

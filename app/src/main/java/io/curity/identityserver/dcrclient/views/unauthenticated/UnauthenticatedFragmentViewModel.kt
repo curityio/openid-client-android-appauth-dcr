@@ -18,6 +18,7 @@ package io.curity.identityserver.dcrclient.views.unauthenticated;
 
 import android.content.Intent
 import androidx.databinding.BaseObservable
+import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,13 +31,17 @@ import io.curity.identityserver.dcrclient.ApplicationStateManager
 import io.curity.identityserver.dcrclient.configuration.ApplicationConfig
 import io.curity.identityserver.dcrclient.errors.ApplicationException
 import io.curity.identityserver.dcrclient.views.error.ErrorFragmentViewModel
+import io.curity.identityserver.dcrclient.utilities.Event
 
 class UnauthenticatedFragmentViewModel(
-    private val events: UnauthenticatedFragmentEvents,
     private val config: ApplicationConfig,
     private val state: ApplicationStateManager,
     private val appauth: AppAuthHandler,
     val error: ErrorFragmentViewModel) : BaseObservable() {
+
+    // Properties used to publish events back to the view
+    var loginStarted = MutableLiveData<Event<Intent>>()
+    var loginCompleted = MutableLiveData<Event<Boolean>>()
 
     /*
      * Build the authorization redirect URL with the app's scope and then ask the view to redirect
@@ -67,7 +72,7 @@ class UnauthenticatedFragmentViewModel(
                         that.isForcedLogin()
                     )
 
-                    that.events.startLoginRedirect(intent)
+                    that.loginStarted.postValue(Event(intent))
                 }
 
             } catch (ex: ApplicationException) {
@@ -108,7 +113,7 @@ class UnauthenticatedFragmentViewModel(
                     withContext(Dispatchers.Main) {
                         that.state.isFirstRun = false
                         that.state.saveTokens(tokenResponse!!)
-                        events.onLoggedIn()
+                        that.loginCompleted.postValue(Event(true))
                     }
 
                 } catch (ex: ApplicationException) {

@@ -18,6 +18,7 @@ package io.curity.identityserver.dcrclient.views.registration;
 
 import android.content.Intent
 import androidx.databinding.BaseObservable
+import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,13 +31,17 @@ import io.curity.identityserver.dcrclient.ApplicationStateManager
 import io.curity.identityserver.dcrclient.configuration.ApplicationConfig
 import io.curity.identityserver.dcrclient.errors.ApplicationException
 import io.curity.identityserver.dcrclient.views.error.ErrorFragmentViewModel
+import io.curity.identityserver.dcrclient.utilities.Event
 
 class RegistrationFragmentViewModel(
-    private val events: RegistrationFragmentEvents,
     private val config: ApplicationConfig,
     private val state: ApplicationStateManager,
     private val appauth: AppAuthHandler,
     val error: ErrorFragmentViewModel) : BaseObservable() {
+
+    // Properties used to publish events back to the view
+    var loginStarted = MutableLiveData<Event<Intent>>()
+    var registrationCompleted = MutableLiveData<Event<Boolean>>()
 
     /*
      * Start an initial redirect with the dcr scope, to get the DCR access token
@@ -66,7 +71,7 @@ class RegistrationFragmentViewModel(
                         true
                     )
 
-                    that.events.startLoginRedirect(intent)
+                    that.loginStarted.postValue(Event(intent))
                 }
 
             } catch (ex: ApplicationException) {
@@ -111,7 +116,7 @@ class RegistrationFragmentViewModel(
                     withContext(Dispatchers.Main) {
                         that.state.metadata = metadata
                         that.state.saveRegistration(registrationResponse!!)
-                        events.onRegistered()
+                        that.registrationCompleted.postValue(Event(true))
                     }
 
                 } catch (ex: ApplicationException) {
