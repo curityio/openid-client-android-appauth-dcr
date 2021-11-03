@@ -9,7 +9,7 @@
 # Set USE_NGROK to false if you want to use a localhost or IP address based URL instead
 #
 USE_NGROK=true
-BASE_URL=http://192.168.0.2:8443
+BASE_URL=http://10.0.2.2:8443
 
 #
 # First check prerequisites
