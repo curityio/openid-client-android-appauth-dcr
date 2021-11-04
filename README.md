@@ -3,29 +3,20 @@
 An extended Android AppAuth code example using authenticated Dynamic Client Registration.\
 This improves the mobile app's security as described in [Mobile Best Practices](https://curity.io/resources/learn/oauth-for-mobile-apps-best-practices/).
 
-## Code Example Article
+## Tutorial Documentation
 
 The [Tutorial Walkthrough](https://curity.io/resources/learn/resources/appauth-dcr) explains the complete configuration and behavior.
 
-## Prerequisites
-
-Ensure that Docker Desktop and ngrok are installed.\
-Then copy a `license.json` file for the Curity Identity Server into the root folder.
-
 ## Quick Start
 
-Deploy the Curity Identity Server via Docker with settings preconfigured for DCR.\
-An ngrok tunnel enables mobile connectivity to the Identity Server's endpoints.
+The easiest way to run the code example is via an automated script as explained in the [Mobile Setup Article](https://curity.io/resources/learn/mobile-setup-ngrok):
 
-```bash
-./start-idsvr.sh
-```
-
-In Android Studio run the app by opening the root folder.\
-When prompted to sign in, do so as the following preconfigured user account:
-
-- User: `demouser`
-- Password: `Password1`
+- Copy a license.json file into the code example root folder
+- Edit the `./start-idsvr.sh` script to use either a local Docker URL on an ngrok internet URL
+- Run the script to deploy a preconfigured Curity Identity Server via Docker
+- Build and run the mobile app from Android Studio
+- Sign in with the preconfigured user account `demouser / Password1`
+- Run `./stop-idsvr.sh` when you want to free Docker resources
 
 ## User Experience
 
@@ -58,14 +49,6 @@ Then query the details of the dynamically registered mobile clients:
 
 ```bash
 select * from dynamically_registered_clients;
-```
-
-## Teardown
-
-Run the following command to free Docker resources:
-
-```bash
-./stop-idsvr.sh
 ```
 
 ## More Information
