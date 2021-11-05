@@ -34,7 +34,7 @@ import io.curity.identityserver.dcrclient.utilities.HttpHelper
 /*
  * Manage AppAuth integration in one class in order to reduce code in the rest of the app
  */
-class AppAuthHandler(private val config: ApplicationConfig, val context: Context) {
+class AppAuthHandler(private val config: ApplicationConfig, private val context: Context) {
 
     private var authService = AuthorizationService(context)
 
@@ -55,10 +55,11 @@ class AppAuthHandler(private val config: ApplicationConfig, val context: Context
                                 "No registration endpoint is configured in the Identity Server"
                             )
                             continuation.resumeWithException(error)
-                        }
 
-                        Log.i(ContentValues.TAG, "Metadata retrieved successfully")
-                        continuation.resume(metadata)
+                        } else {
+                            Log.i(ContentValues.TAG, "Metadata retrieved successfully")
+                            continuation.resume(metadata)
+                        }
                     }
                     else -> {
                         val error = createAuthorizationError("Metadata Download Error", ex)
@@ -154,7 +155,7 @@ class AppAuthHandler(private val config: ApplicationConfig, val context: Context
         val extraParams = mutableMapOf<String, String>()
         extraParams["scope"] = config.scope
         extraParams["requires_consent"] = "false"
-        extraParams["post_logout_redirect_uris"] = config.postLogoutRedirectUri.toString()
+        extraParams["post_logout_redirect_uris"] = config.postLogoutRedirectUri
 
         val nonTemplatizedRequest =
             RegistrationRequest.Builder(
@@ -174,7 +175,7 @@ class AppAuthHandler(private val config: ApplicationConfig, val context: Context
                 dcrAccessToken)
 
             val registrationResponse = RegistrationResponse.Builder(nonTemplatizedRequest)
-                .fromResponseJsonString(responseData).build();
+                .fromResponseJsonString(responseData).build()
 
             Log.i(ContentValues.TAG, "Registration data retrieved successfully")
             Log.d(ContentValues.TAG, "Created dynamic client: ID: ${registrationResponse.clientId}, Secret: ${registrationResponse.clientSecret}")

@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         this.binding.model = model
 
-        this.moveToInitialView();
+        this.moveToInitialView()
     }
 
     fun onRegisteredNavigate() {
@@ -57,9 +57,7 @@ class MainActivity : AppCompatActivity() {
     private fun moveToInitialView() {
 
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        if (!this.binding.model!!.isRegistered()) {
-            navHostFragment.navController.navigate(R.id.fragment_registration)
-        } else {
+        if (this.binding.model!!.isRegistered()) {
             navHostFragment.navController.navigate(R.id.fragment_unauthenticated)
         }
     }
