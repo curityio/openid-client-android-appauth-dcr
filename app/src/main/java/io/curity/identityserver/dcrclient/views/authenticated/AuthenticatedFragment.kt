@@ -53,12 +53,12 @@ class AuthenticatedFragment : androidx.fragment.app.Fragment() {
         val viewModel = mainViewModel.getAuthenticatedViewModel(errorViewModel)
 
         // Handle events sent from the view model
-        viewModel.logoutStarted.observe(this, Observer { event ->
+        viewModel.logoutStarted.observe(this, { event ->
             event?.getData()?.let {
                 this.startLogoutRedirect(it)
             }
         })
-        viewModel.logoutCompleted.observe(this, Observer { event ->
+        viewModel.logoutCompleted.observe(this, { event ->
             event?.getData()?.let {
                 this.onLoggedOut()
             }

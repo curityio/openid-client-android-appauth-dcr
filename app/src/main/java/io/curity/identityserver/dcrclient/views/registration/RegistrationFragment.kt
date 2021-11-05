@@ -53,12 +53,12 @@ class RegistrationFragment : androidx.fragment.app.Fragment() {
         val viewModel = mainViewModel.getRegistrationViewModel(errorViewModel)
 
         // Handle events sent from the view model
-        viewModel.loginStarted.observe(this, Observer { event ->
+        viewModel.loginStarted.observe(this, { event ->
             event?.getData()?.let {
                 this.startLoginRedirect(it)
             }
         })
-        viewModel.registrationCompleted.observe(this, Observer { event ->
+        viewModel.registrationCompleted.observe(this, { event ->
             event?.getData()?.let {
                 this.onRegistered()
             }
