@@ -5,7 +5,7 @@ This improves the mobile app's security as described in [Mobile Best Practices](
 
 ## Tutorial Documentation
 
-The [Tutorial Walkthrough](https://curity.io/resources/resources/learn/authenticated-dcr-example) explains the complete configuration and behavior.
+The [Tutorial Walkthrough](https://curity.io/resources/learn/authenticated-dcr-example) explains the complete configuration and behavior.
 
 ## Quick Start
 
